@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application de Dactylographie & Raccourcis Pro</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --key-bg: #334155;
+            --key-border: #475569;
+            --key-active: #3b82f6;
+            --key-guide: #10b981;
+            --key-text: #f1f5f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1250px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar-top {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn, .layout-btn {
+            background: transparent;
+            border: 2px solid var(--key-border);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover, .layout-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-main);
+        }
+
+        .nav-btn.active, .layout-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .view-section {
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .view-section.active-view {
+            display: flex;
+        }
+
+        .training-section {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--key-border);
+            padding-bottom: 12px;
+        }
+
+        .training-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .stats span strong {
+            color: var(--text-main);
+        }
+
+        .exercise-display {
+            background: #0f172a;
+            border: 2px solid var(--key-border);
+            border-radius: 12px;
+            padding: 25px;
+            font-size: 2rem;
+            font-family: monospace;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 12px;
+            min-height: 90px;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            overflow-x: auto;
+        }
+
+        .char-box {
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid transparent;
+        }
+
+        .char-box.current {
+            background-color: var(--accent);
+            color: white;
+            border-color: #60a5fa;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .char-box.correct {
+            color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+
+        .char-box.incorrect {
+            color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+        }
+
+        .training-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .target-shortcut-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .shortcut-target-badge {
+            background: var(--key-bg);
+            border: 2px solid var(--accent);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .shortcut-instruction {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-top: 15px;
+            border-bottom: 1px dashed var(--key-border);
+            padding-bottom: 6px;
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .shortcut-card {
+            background: #0f172a;
+            border: 1px solid var(--key-border);
+            border-radius: 10px;
+            padding: 12px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .shortcut-keys {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .shortcut-badge {
+            background: var(--key-bg);
+            border: 1px solid var(--key-border);
+            padding: 3px 7px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .shortcut-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Styles pour la rubrique Guide Ergonomique */
+        .guide-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .guide-card {
+            background: #0f172a;
+            border: 1px solid var(--key-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .guide-card h4 {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .guide-card ul {
+            padding-left: 20px;
+            color: var(--text-muted);
+        }
+
+        .guide-card li {
+            margin-bottom: 6px;
+        }
+
+        .keyboard-wrapper {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .keyboard-layout-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .keyboard-main-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            user-select: none;
+        }
+
+        .keyboard-row {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
+        }
+
+        .keyboard-side-block {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-left: 2px solid var(--key-border);
+            padding-left: 15px;
+            user-select: none;
+        }
+
+        .nav-cluster-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .arrow-cluster {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .arrow-row-sub {
+            display: flex;
+            gap: 6px;
+        }
+
+        .key {
+            background-color: var(--key-bg);
+            border: 1px solid var(--key-border);
+            color: var(--key-text);
+            height: 48px;
+            min-width: 48px;
+            padding: 0 8px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            position: relative;
+            box-shadow: 0 3px 0 #1e293b, 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.08s ease, background-color 0.08s ease, box-shadow 0.08s ease;
+        }
+
+        .key.space { width: 280px; }
+        .key.backspace { width: 90px; }
+        .key.tab { width: 75px; }
+        .key.caps { width: 85px; }
+        .key.enter { width: 105px; }
+        .key.shift-left { width: 115px; }
+        .key.shift-right { width: 130px; }
+        .key.ctrl, .key.alt, .key.win, .key.fn { width: 60px; }
+        .key.esc { width: 50px; }
+        .key.func-key { height: 38px; min-width: 44px; font-size: 0.80rem; background-color: #26334d; }
+
+        .key .sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            position: absolute;
+            top: 4px;
+            left: 6px;
+        }
+
+        .key .main-char {
+            font-size: 1rem;
+            margin-top: 4px;
+        }
+
+        .key.active {
+            background-color: var(--key-active) !important;
+            border-color: #60a5fa;
+            color: white;
+            transform: translateY(3px);
+            box-shadow: 0 0 0 #1e293b, 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .key.guide {
+            border-color: var(--key-guide);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="sound-clic" src="sonde/click.mp3" preload="auto"></audio>
+    <audio id="sound-error" src="sonde/error.mp3" preload="auto"></audio>
+
+    <header>
+        <h1>Apprentissage de la Dactylographie & Raccourcis</h1>
+        <p class="subtitle">Maîtrisez votre clavier, vos lettres et vos raccourcis</p>
+    </header>
+
+    <div class="container">
+        <!-- Barre de navigation haut -->
+        <div class="navbar-top">
+            <div class="nav-group">
+                <button class="nav-btn active" onclick="switchView('training', this)">🎯 Entraînement Lettres</button>
+                <button class="nav-btn" onclick="switchView('shortcut-training', this)">⚡ Entraînement Raccourcis</button>
+                <button class="nav-btn" onclick="switchView('shortcuts', this)">📚 Bibliothèque</button>
+                <button class="nav-btn" onclick="switchView('guide', this)">📖 Guide & Posture</button>
+            </div>
+            <div class="nav-group">
+                <span style="font-size: 0.9rem; color: var(--text-muted);">Disposition :</span>
+                <button class="layout-btn active" onclick="switchLayout('azerty', this)">AZERTY (FR)</button>
+                <button class="layout-btn" onclick="switchLayout('qwerty', this)">QWERTY (US)</button>
+                <button class="layout-btn" onclick="switchLayout('arabic', this)">Arabe</button>
+            </div>
+        </div>
+
+        <!-- VUE 1 : ENTRAÎNEMENT LETTRES -->
+        <div id="view-training" class="view-section active-view">
+            <div class="training-section">
+                <div class="training-header">
+                    <span class="training-title">Mode Entraînement : Exercice de Frappe Aléatoire</span>
+                    <div class="stats">
+                        <span>Erreurs : <strong id="error-count">0</strong></span>
+                        <span>Progression : <strong id="progress-count">0</strong> / <span id="total-count">0</span></span>
+                    </div>
+                </div>
+
+                <div class="exercise-display" id="exercise-display"></div>
+
+                <div class="training-controls">
+                    <button class="action-btn" onclick="loadNewExercise()">Nouvelle Série Aléatoire</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE 2 : ENTRAÎNEMENT RACCOURCIS -->
+        <div id="view-shortcut-training" class="view-section">
+            <div class="training-section">
+                <div class="training-header">
+                    <span class="training-title">Mode Entraînement : Raccourcis Clavier</span>
+                    <div class="stats">
+                        <span>Réussites : <strong id="sc-success-count">0</strong></span>
+                        <span>Erreurs : <strong id="sc-error-count">0</strong></span>
+                    </div>
+                </div>
+
+                <div class="exercise-display" style="flex-direction: column; gap: 15px;">
+                    <div class="shortcut-instruction">Exécutez le raccourci suivant sur votre clavier :</div>
+                    <div class="target-shortcut-box" id="target-shortcut-container"></div>
+                    <div id="sc-feedback" style="font-size: 0.95rem; color: var(--text-muted); min-height: 24px;"></div>
+                </div>
+
+                <div class="training-controls">
+                    <button class="action-btn" onclick="loadNewShortcutExercise()">Passer au Suivant</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE 3 : BIBLIOTHÈQUE DE RACCOURCIS -->
+        <div id="view-shortcuts" class="view-section">
+            <div class="training-section">
+                <h3 id="shortcuts-title" style="color: var(--accent); font-size: 1.2rem;">Bibliothèque de Raccourcis</h3>
+                <div id="shortcuts-content-container" style="display: flex; flex-direction: column; gap: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- VUE 4 : GUIDE & POSTURE ERGONOMIQUE -->
+        <div id="view-guide" class="view-section">
+            <div class="training-section">
+                <h3 style="color: var(--accent); font-size: 1.2rem;">Guide Ergonomique & Posture des Mains</h3>
+                <div class="guide-content">
+                    
+                    <!-- EXPLICATION TEXTUELLE -->
+                    <div class="guide-card">
+                        <h4>1. La Ligne de Repos (Home Row) : Le Point d'Ancrage</h4>
+                        <p>La position de départ s'établit sur la rangée centrale du clavier :</p>
+                        <ul>
+                            <li><strong>Main gauche :</strong> Les doigts se posent sur les touches <strong>Q, S, D et F</strong>. L'index gauche repose spécifiquement sur la touche <strong>F</strong> (qui comporte un repère tactile)[cite: 3, 6].</li>
+                            <li><strong>Main droite :</strong> Les doigts se positionnent sur les touches <strong>J, K, L et M</strong>. L'index droit se place sur la touche <strong>J</strong> (qui possède aussi un repère tactile)[cite: 3, 6].</li>
+                            <li><strong>Les Pouces :</strong> Ils survolent ou reposent légèrement sur la <strong>barre d'espace</strong>.</li>
+                        </ul>
+                    </div>
+
+                    <!-- AFFICHAGE DES IMAGES DE POSITIONNEMENT -->
+                    <div class="guide-card" style="text-align: center;">
+                        <h4>Visuels de Positionnement par Clavier</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">
+                            Voici comment positionner vos mains pour chaque disposition :
+                        </p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 25px; align-items: center;">
+                            <div>
+                                <p style="font-weight: 600; margin-bottom: 8px; color: var(--accent);">Disposition AZERTY (FR)</p>
+                                <img src="images/images-azerty-guide.jpg" alt="Guide AZERTY" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--key-border);">
+                            </div>
+                            <div>
+                                <p style="font-weight: 600; margin-bottom: 8px; color: var(--accent);">Disposition QWERTY (US)</p>
+                                <img src="images/images-qwerty-guide.jpg" alt="Guide QWERTY" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--key-border);">
+                            </div>
+                            <div>
+                                <p style="font-weight: 600; margin-bottom: 8px; color: var(--accent);">Disposition Arabe</p>
+                                <img src="images/images-arabic-guide.jpg" alt="Guide Arabe" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--key-border);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h4>2. Principes Ergonomiques & Bienfaits</h4>
+                        <ul>
+                            <li><strong>Économie de mouvement :</strong> Revenir toujours à la ligne de repos minimise la distance parcourue par les mains.</li>
+                            <li><strong>Frappe à l'aveugle :</strong> Retrouver intuitivement les repères tactiles (F et J)[cite: 3, 6] libère totalement le regard de l'écran.</li>
+                            <li><strong>Confort physique :</strong> Garder les poignets droits, les avant-bras parallèles au sol et les doigts arqués préserve des tensions et de la fatigue[cite: 3, 6].</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- Clavier Virtuel Interactif Propre -->
+        <div class="keyboard-wrapper">
+            <div class="keyboard-layout-container">
+                <div class="keyboard-main-block" id="keyboard-main-container"></div>
+
+                <div class="keyboard-side-block">
+                    <div class="nav-cluster-row">
+                        <div class="key func-key" data-code="Insert"><span class="main-char">Ins</span></div>
+                        <div class="key func-key" data-code="Home"><span class="main-char">Début</span></div>
+                        <div class="key func-key" data-code="PageUp"><span class="main-char">PgUp</span></div>
+                    </div>
+                    <div class="nav-cluster-row">
+                        <div class="key func-key" data-code="Delete"><span class="main-char">Suppr</span></div>
+                        <div class="key func-key" data-code="End"><span class="main-char">Fin</span></div>
+                        <div class="key func-key" data-code="PageDown"><span class="main-char">PgDn</span></div>
+                    </div>
+                    
+                    <div class="arrow-cluster">
+                        <div class="key func-key" data-code="ArrowUp"><span class="main-char">▲</span></div>
+                        <div class="arrow-row-sub">
+                            <div class="key func-key" data-code="ArrowLeft"><span class="main-char">◀</span></div>
+                            <div class="key func-key" data-code="ArrowDown"><span class="main-char">▼</span></div>
+                            <div class="key func-key" data-code="ArrowRight"><span class="main-char">▶</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const layouts = {
+            azerty: [
+                [
+                    { code: 'Escape', label: 'Échap', class: 'esc func-key' },
+                    { code: 'F1', label: 'F1', class: 'func-key' }, { code: 'F2', label: 'F2', class: 'func-key' },
+                    { code: 'F3', label: 'F3', class: 'func-key' }, { code: 'F4', label: 'F4', class: 'func-key' },
+                    { code: 'F5', label: 'F5', class: 'func-key' }, { code: 'F6', label: 'F6', class: 'func-key' },
+                    { code: 'F7', label: 'F7', class: 'func-key' }, { code: 'F8', label: 'F8', class: 'func-key' },
+                    { code: 'F9', label: 'F9', class: 'func-key' }, { code: 'F10', label: 'F10', class: 'func-key' },
+                    { code: 'F11', label: 'F11', class: 'func-key' }, { code: 'F12', label: 'F12', class: 'func-key' }
+                ],
+                [
+                    { code: 'Backquote', label: '²' }, { code: 'Digit1', label: '&', sub: '1', char: '1' }, { code: 'Digit2', label: 'é', sub: '2', char: 'é' },
+                    { code: 'Digit3', label: '"', sub: '3', char: '"' }, { code: 'Digit4', label: "'", sub: '4', char: "'" }, { code: 'Digit5', label: '(', sub: '5', char: '(' },
+                    { code: 'Digit6', label: '-', sub: '6', char: '-' }, { code: 'Digit7', label: 'è', sub: '7', char: 'è' }, { code: 'Digit8', label: '_', sub: '8', char: '_' },
+                    { code: 'Digit9', label: 'ç', sub: '9', char: 'ç' }, { code: 'Digit0', label: 'à', sub: '0', char: 'à' }, { code: 'Minus', label: ')', sub: '°' },
+                    { code: 'Equal', label: '=', sub: '+' }, { code: 'Backspace', label: 'Effacer', class: 'backspace' }
+                ],
+                [
+                    { code: 'Tab', label: 'Tab', class: 'tab' },
+                    { code: 'KeyA', label: 'A', char: 'a' }, { code: 'KeyZ', label: 'Z', char: 'z' }, { code: 'KeyE', label: 'E', char: 'e' },
+                    { code: 'KeyR', label: 'R', char: 'r' }, { code: 'KeyT', label: 'T', char: 't' }, { code: 'KeyY', label: 'Y', char: 'y' },
+                    { code: 'KeyU', label: 'U', char: 'u' }, { code: 'KeyI', label: 'I', char: 'i' }, { code: 'KeyO', label: 'O', char: 'o' },
+                    { code: 'KeyP', label: 'P', char: 'p' }, { code: 'BracketLeft', label: '^', sub: '¨' }, { code: 'BracketRight', label: '$', sub: '£' },
+                    { code: 'Enter', label: 'Entrée', class: 'enter' }
+                ],
+                [
+                    { code: 'CapsLock', label: 'Verr Maj', class: 'caps' },
+                    { code: 'KeyQ', label: 'Q', char: 'q' }, { code: 'KeyS', label: 'S', char: 's' }, { code: 'KeyD', label: 'D', char: 'd' },
+                    { code: 'KeyF', label: 'F', char: 'f' }, { code: 'KeyG', label: 'G', char: 'g' }, { code: 'KeyH', label: 'H', char: 'h' },
+                    { code: 'KeyJ', label: 'J', char: 'j' }, { code: 'KeyK', label: 'K', char: 'k' }, { code: 'KeyL', label: 'L', char: 'l' },
+                    { code: 'Semicolon', label: 'M', char: 'm' }, { code: 'Quote', label: 'ù', sub: '%' }, { code: 'Backslash', label: '*', sub: 'µ' }
+                ],
+                [
+                    { code: 'ShiftLeft', label: 'Maj', class: 'shift-left' },
+                    { code: 'IntlBackslash', label: '<', sub: '>' }, { code: 'KeyW', label: 'W', char: 'w' }, { code: 'KeyX', label: 'X', char: 'x' },
+                    { code: 'KeyC', label: 'C', char: 'c' }, { code: 'KeyV', label: 'V', char: 'v' }, { code: 'KeyB', label: 'B', char: 'b' },
+                    { code: 'KeyN', label: 'N', char: 'n' }, { code: 'Comma', label: ',', sub: '?' }, { code: 'Period', label: ';', sub: '.' },
+                    { code: 'Slash', label: ':', sub: '/' }, { code: 'IntlRo', label: '!', sub: '§' },
+                    { code: 'ShiftRight', label: 'Maj', class: 'shift-right' }
+                ],
+                [
+                    { code: 'ControlLeft', label: 'Ctrl', class: 'ctrl' }, { code: 'MetaLeft', label: 'Win', class: 'win' },
+                    { code: 'AltLeft', label: 'Alt', class: 'alt' }, { code: 'Space', label: ' ', class: 'space', char: ' ' },
+                    { code: 'AltRight', label: 'Alt Gr', class: 'alt' }, { code: 'Fn', label: 'Fn', class: 'fn' },
+                    { code: 'ControlRight', label: 'Ctrl', class: 'ctrl' }
+                ]
+            ],
+            qwerty: [
+                [
+                    { code: 'Escape', label: 'Esc', class: 'esc func-key' },
+                    { code: 'F1', label: 'F1', class: 'func-key' }, { code: 'F2', label: 'F2', class: 'func-key' },
+                    { code: 'F3', label: 'F3', class: 'func-key' }, { code: 'F4', label: 'F4', class: 'func-key' },
+                    { code: 'F5', label: 'F5', class: 'func-key' }, { code: 'F6', label: 'F6', class: 'func-key' },
+                    { code: 'F7', label: 'F7', class: 'func-key' }, { code: 'F8', label: 'F8', class: 'func-key' },
+                    { code: 'F9', label: 'F9', class: 'func-key' }, { code: 'F10', label: 'F10', class: 'func-key' },
+                    { code: 'F11', label: 'F11', class: 'func-key' }, { code: 'F12', label: 'F12', class: 'func-key' }
+                ],
+                [
+                    { code: 'Backquote', label: '`', sub: '~' }, { code: 'Digit1', label: '1', sub: '!', char: '1' }, { code: 'Digit2', label: '2', sub: '@', char: '2' },
+                    { code: 'Digit3', label: '3', sub: '#', char: '3' }, { code: 'Digit4', label: '4', sub: '$', char: '4' }, { code: 'Digit5', label: '5', sub: '%', char: '5' },
+                    { code: 'Digit6', label: '6', sub: '^', char: '6' }, { code: 'Digit7', label: '7', sub: '&', char: '7' }, { code: 'Digit8', label: '8', sub: '*', char: '8' },
+                    { code: 'Digit9', label: '9', sub: '(', char: '9' }, { code: 'Digit0', label: '0', sub: ')', char: '0' }, { code: 'Minus', label: '-', sub: '_' },
+                    { code: 'Equal', label: '=', sub: '+' }, { code: 'Backspace', label: 'Backspace', class: 'backspace' }
+                ],
+                [
+                    { code: 'Tab', label: 'Tab', class: 'tab' },
+                    { code: 'KeyQ', label: 'Q', char: 'q' }, { code: 'KeyW', label: 'W', char: 'w' }, { code: 'KeyE', label: 'E', char: 'e' },
+                    { code: 'KeyR', label: 'R', char: 'r' }, { code: 'KeyT', label: 'T', char: 't' }, { code: 'KeyY', label: 'Y', char: 'y' },
+                    { code: 'KeyU', label: 'U', char: 'u' }, { code: 'KeyI', label: 'I', char: 'i' }, { code: 'KeyO', label: 'O', char: 'o' },
+                    { code: 'KeyP', label: 'P', char: 'p' }, { code: 'BracketLeft', label: '[', sub: '{' }, { code: 'BracketRight', label: ']', sub: '}' },
+                    { code: 'Backslash', label: '\\', sub: '|' }, { code: 'Enter', label: 'Enter', class: 'enter' }
+                ],
+                [
+                    { code: 'CapsLock', label: 'Caps', class: 'caps' },
+                    { code: 'KeyA', label: 'A', char: 'a' }, { code: 'KeyS', label: 'S', char: 's' }, { code: 'KeyD', label: 'D', char: 'd' },
+                    { code: 'KeyF', label: 'F', char: 'f' }, { code: 'KeyG', label: 'G', char: 'g' }, { code: 'KeyH', label: 'H', char: 'h' },
+                    { code: 'KeyJ', label: 'J', char: 'j' }, { code: 'KeyK', label: 'K', char: 'k' }, { code: 'KeyL', label: 'L', char: 'l' },
+                    { code: 'Semicolon', label: ';', sub: ':' }, { code: 'Quote', label: "'", sub: '"' }
+                ],
+                [
+                    { code: 'ShiftLeft', label: 'Shift', class: 'shift-left' },
+                    { code: 'KeyZ', label: 'Z', char: 'z' }, { code: 'KeyX', label: 'X', char: 'x' }, { code: 'KeyC', label: 'C', char: 'c' },
+                    { code: 'KeyV', label: 'V', char: 'v' }, { code: 'KeyB', label: 'B', char: 'b' }, { code: 'KeyN', label: 'N', char: 'n' },
+                    { code: 'KeyM', label: 'M', char: 'm' }, { code: 'Comma', label: ',', sub: '<' }, { code: 'Period', label: '.', sub: '>' },
+                    { code: 'Slash', label: '/', sub: '?' }, { code: 'ShiftRight', label: 'Shift', class: 'shift-right' }
+                ],
+                [
+                    { code: 'ControlLeft', label: 'Ctrl', class: 'ctrl' }, { code: 'MetaLeft', label: 'Win', class: 'win' },
+                    { code: 'AltLeft', label: 'Alt', class: 'alt' }, { code: 'Space', label: ' ', class: 'space', char: ' ' },
+                    { code: 'AltRight', label: 'Alt Gr', class: 'alt' }, { code: 'Fn', label: 'Fn', class: 'fn' },
+                    { code: 'ControlRight', label: 'Ctrl', class: 'ctrl' }
+                ]
+            ],
+            arabic: [
+                [
+                    { code: 'Escape', label: 'إسكات', class: 'esc func-key' },
+                    { code: 'F1', label: 'F1', class: 'func-key' }, { code: 'F2', label: 'F2', class: 'func-key' },
+                    { code: 'F3', label: 'F3', class: 'func-key' }, { code: 'F4', label: 'F4', class: 'func-key' },
+                    { code: 'F5', label: 'F5', class: 'func-key' }, { code: 'F6', label: 'F6', class: 'func-key' },
+                    { code: 'F7', label: 'F7', class: 'func-key' }, { code: 'F8', label: 'F8', class: 'func-key' },
+                    { code: 'F9', label: 'F9', class: 'func-key' }, { code: 'F10', label: 'F10', class: 'func-key' },
+                    { code: 'F11', label: 'F11', class: 'func-key' }, { code: 'F12', label: 'F12', class: 'func-key' }
+                ],
+                [
+                    { code: 'Backquote', label: 'ذ', sub: '÷' }, { code: 'Digit1', label: '1', sub: '¡', char: '1' }, { code: 'Digit2', label: '2', sub: 'ع', char: '2' },
+                    { code: 'Digit3', label: '3', sub: 'إ', char: '3' }, { code: 'Digit4', label: '4', sub: '\'', char: '4' }, { code: 'Digit5', label: '5', sub: '،', char: '5' },
+                    { code: 'Digit6', label: '6', sub: '؞', char: '6' }, { code: 'Digit7', label: '7', sub: '،', char: '7' }, { code: 'Digit8', label: '8', sub: '*', char: '8' },
+                    { code: 'Digit9', label: '9', sub: '(', char: '9' }, { code: 'Digit0', label: '0', sub: ')', char: '0' }, { code: 'Minus', label: '-', sub: '_' },
+                    { code: 'Equal', label: '=', sub: '+' }, { code: 'Backspace', label: 'Backspace', class: 'backspace' }
+                ],
+                [
+                    { code: 'Tab', label: 'Tab', class: 'tab' },
+                    { code: 'KeyQ', label: 'ض', char: 'ض' }, { code: 'KeyW', label: 'ص', char: 'ص' }, { code: 'KeyE', label: 'ث', char: 'ث' },
+                    { code: 'KeyR', label: 'ق', char: 'ق' }, { code: 'KeyT', label: 'ف', char: 'ف' }, { code: 'KeyY', label: 'غ', char: 'غ' },
+                    { code: 'KeyU', label: 'ع', char: 'ع' }, { code: 'KeyI', label: 'ه', char: 'ه' }, { code: 'KeyO', label: 'خ', char: 'خ' },
+                    { code: 'KeyP', label: 'ح', char: 'ح' }, { code: 'BracketLeft', label: 'ج', char: 'ج' }, { code: 'BracketRight', label: 'د', char: 'د' },
+                    { code: 'Enter', label: 'Enter', class: 'enter' }
+                ],
+                [
+                    { code: 'CapsLock', label: 'Caps', class: 'caps' },
+                    { code: 'KeyA', label: 'ش', char: 'ش' }, { code: 'KeyS', label: 'س', char: 'س' }, { code: 'KeyD', label: 'ي', char: 'ي' },
+                    { code: 'KeyF', label: 'ب', char: 'ب' }, { code: 'KeyG', label: 'ل', char: 'ل' }, { code: 'KeyH', label: 'ا', char: 'ا' },
+                    { code: 'KeyJ', label: 'ت', char: 'ت' }, { code: 'KeyK', label: 'ن', char: 'ن' }, { code: 'KeyL', label: 'م', char: 'م' },
+                    { code: 'Semicolon', label: 'ك', char: 'ك' }, { code: 'Quote', label: 'ط', char: 'ط' }
+                ],
+                [
+                    { code: 'ShiftLeft', label: 'Shift', class: 'shift-left' },
+                    { code: 'KeyZ', label: 'ئ', char: 'ئ' }, { code: 'KeyX', label: 'ء', char: 'ء' }, { code: 'KeyC', label: 'ؤ', char: 'ؤ' },
+                    { code: 'KeyV', label: 'ر', char: 'ر' }, { code: 'KeyB', label: 'لا', char: 'لا' }, { code: 'KeyN', label: 'ى', char: 'ى' },
+                    { code: 'KeyM', label: 'ة', char: 'ة' }, { code: 'Comma', label: 'و', char: 'و' }, { code: 'Period', label: 'ز', char: 'ز' },
+                    { code: 'Slash', label: 'ظ', char: 'ظ' }, { code: 'ShiftRight', label: 'Shift', class: 'shift-right' }
+                ],
+                [
+                    { code: 'ControlLeft', label: 'Ctrl', class: 'ctrl' }, { code: 'MetaLeft', label: 'Win', class: 'win' },
+                    { code: 'AltLeft', label: 'Alt', class: 'alt' }, { code: 'Space', label: ' ', class: 'space', char: ' ' },
+                    { code: 'AltRight', label: 'Alt Gr', class: 'alt' }, { code: 'Fn', label: 'Fn', class: 'fn' },
+                    { code: 'ControlRight', label: 'Ctrl', class: 'ctrl' }
+                ]
+            ]
+        };
+
+        const shortcutsData = {
+            azerty: [
+                {
+                    category: "📝 Édition & Texte",
+                    items: [
+                        { keys: ["Ctrl", "C"], codeKeys: ["ControlLeft", "KeyC"], desc: "Copier la sélection" },
+                        { keys: ["Ctrl", "V"], codeKeys: ["ControlLeft", "KeyV"], desc: "Coller le contenu" },
+                        { keys: ["Ctrl", "X"], codeKeys: ["ControlLeft", "KeyX"], desc: "Couper la sélection" },
+                        { keys: ["Ctrl", "A"], codeKeys: ["ControlLeft", "KeyA"], desc: "Tout sélectionner" },
+                        { keys: ["Ctrl", "Z"], codeKeys: ["ControlLeft", "KeyZ"], desc: "Annuler la dernière action" },
+                        { keys: ["Ctrl", "Y"], codeKeys: ["ControlLeft", "KeyY"], desc: "Rétablir l'action annulée" },
+                        { keys: ["Ctrl", "F"], codeKeys: ["ControlLeft", "KeyF"], desc: "Rechercher dans un document ou une page" },
+                        { keys: ["Ctrl", "H"], codeKeys: ["ControlLeft", "KeyH"], desc: "Remplacer du texte" }
+                    ]
+                },
+                {
+                    category: "📁 Fichiers & Système",
+                    items: [
+                        { keys: ["Ctrl", "S"], codeKeys: ["ControlLeft", "KeyS"], desc: "Enregistrer le fichier en cours" },
+                        { keys: ["Ctrl", "O"], codeKeys: ["ControlLeft", "KeyO"], desc: "Ouvrir un fichier existant" },
+                        { keys: ["Ctrl", "N"], codeKeys: ["ControlLeft", "KeyN"], desc: "Créer un nouveau document ou une nouvelle fenêtre" },
+                        { keys: ["Ctrl", "P"], codeKeys: ["ControlLeft", "KeyP"], desc: "Imprimer le document actif" },
+                        { keys: ["Ctrl", "Maj", "Échap"], codeKeys: ["ControlLeft", "ShiftLeft", "Escape"], desc: "Ouvrir le Gestionnaire des tâches" },
+                        { keys: ["Alt", "F4"], codeKeys: ["AltLeft", "F4"], desc: "Fermer la fenêtre active" }
+                    ]
+                },
+                {
+                    category: "🌐 Navigation & Fenêtres",
+                    items: [
+                        { keys: ["Alt", "Tab"], codeKeys: ["AltLeft", "Tab"], desc: "Basculer rapidement entre les applications ouvertes" },
+                        { keys: ["Win", "D"], codeKeys: ["MetaLeft", "KeyD"], desc: "Afficher ou masquer le Bureau" },
+                        { keys: ["Ctrl", "T"], codeKeys: ["ControlLeft", "KeyT"], desc: "Ouvrir un nouvel onglet dans le navigateur" },
+                        { keys: ["Ctrl", "W"], codeKeys: ["ControlLeft", "KeyW"], desc: "Fermer l'onglet actif du navigateur" },
+                        { keys: ["Ctrl", "Shift", "T"], codeKeys: ["ControlLeft", "ShiftLeft", "KeyT"], desc: "Rouvrir le dernier onglet fermé" },
+                        { keys: ["Win", "Flèche Gauche / Droite"], codeKeys: ["MetaLeft", "ArrowLeft"], desc: "Ancrer la fenêtre sur le côté de l'écran" }
+                    ]
+                },
+                {
+                    category: "⚡ Caractères Spéciaux & Langue",
+                    items: [
+                        { keys: ["Alt Gr", "E"], codeKeys: ["AltRight", "KeyE"], desc: "Insérer le symbole Euro (€)" },
+                        { keys: ["Alt Gr", "À (0)"], codeKeys: ["AltRight", "Digit0"], desc: "Insérer le symbole arobase (@)" },
+                        { keys: ["Shift", "Alt"], codeKeys: ["ShiftLeft", "AltLeft"], desc: "Basculer la langue / disposition du clavier" },
+                        { keys: ["Win", "Espace"], codeKeys: ["MetaLeft", "Space"], desc: "Afficher le panneau de sélection des langues" }
+                    ]
+                }
+            ],
+            qwerty: [
+                {
+                    category: "📝 Editing & Text",
+                    items: [
+                        { keys: ["Ctrl", "C"], codeKeys: ["ControlLeft", "KeyC"], desc: "Copy selection to clipboard" },
+                        { keys: ["Ctrl", "V"], codeKeys: ["ControlLeft", "KeyV"], desc: "Paste copied content" },
+                        { keys: ["Ctrl", "X"], codeKeys: ["ControlLeft", "KeyX"], desc: "Cut selected content" },
+                        { keys: ["Ctrl", "A"], codeKeys: ["ControlLeft", "KeyA"], desc: "Select all text" },
+                        { keys: ["Ctrl", "Z"], codeKeys: ["ControlLeft", "KeyZ"], desc: "Undo last action" },
+                        { keys: ["Ctrl", "Y"], codeKeys: ["ControlLeft", "KeyY"], desc: "Redo last undone action" },
+                        { keys: ["Ctrl", "F"], codeKeys: ["ControlLeft", "KeyF"], desc: "Find text in page or document" },
+                        { keys: ["Ctrl", "H"], codeKeys: ["ControlLeft", "KeyH"], desc: "Find and replace text" }
+                    ]
+                },
+                {
+                    category: "📁 Files & System",
+                    items: [
+                        { keys: ["Ctrl", "S"], codeKeys: ["ControlLeft", "KeyS"], desc: "Save current file" },
+                        { keys: ["Ctrl", "O"], codeKeys: ["ControlLeft", "KeyO"], desc: "Open a file" },
+                        { keys: ["Ctrl", "N"], codeKeys: ["ControlLeft", "KeyN"], desc: "Open new window or file" },
+                        { keys: ["Ctrl", "P"], codeKeys: ["ControlLeft", "KeyP"], desc: "Print current document" },
+                        { keys: ["Ctrl", "Shift", "Esc"], codeKeys: ["ControlLeft", "ShiftLeft", "Escape"], desc: "Open Task Manager directly" },
+                        { keys: ["Alt", "F4"], codeKeys: ["AltLeft", "F4"], desc: "Close active application window" }
+                    ]
+                },
+                {
+                    category: "🌐 Navigation & Windows",
+                    items: [
+                        { keys: ["Alt", "Tab"], codeKeys: ["AltLeft", "Tab"], desc: "Switch between open apps" },
+                        { keys: ["Win", "D"], codeKeys: ["MetaLeft", "KeyD"], desc: "Show or hide Desktop" },
+                        { keys: ["Ctrl", "T"], codeKeys: ["ControlLeft", "KeyT"], desc: "Open new browser tab" },
+                        { keys: ["Ctrl", "W"], codeKeys: ["ControlLeft", "KeyW"], desc: "Close current browser tab" },
+                        { keys: ["Win", "Left / Right Arrow"], codeKeys: ["MetaLeft", "ArrowLeft"], desc: "Snap window to screen side" }
+                    ]
+                },
+                {
+                    category: "⚡ Symbols & Language",
+                    items: [
+                        { keys: ["Alt Gr", "4"], codeKeys: ["AltRight", "Digit4"], desc: "Insert Dollar ($) or currency symbol" },
+                        { keys: ["Win", "Space"], codeKeys: ["MetaLeft", "Space"], desc: "Switch keyboard input language" },
+                        { keys: ["Win", "."], codeKeys: ["MetaLeft", "Period"], desc: "Open Emoji and special symbols panel" }
+                    ]
+                }
+            ],
+            arabic: [
+                {
+                    category: "📝 التحرير والنصوص (Text Editing)",
+                    items: [
+                        { keys: ["Ctrl", "C"], codeKeys: ["ControlLeft", "KeyC"], desc: "نسخ النص المحدد (Copier)" },
+                        { keys: ["Ctrl", "V"], codeKeys: ["ControlLeft", "KeyV"], desc: "لصق النص المنفذ (Coller)" },
+                        { keys: ["Ctrl", "X"], codeKeys: ["ControlLeft", "KeyX"], desc: "قص النص (Couper)" },
+                        { keys: ["Ctrl", "A"], codeKeys: ["ControlLeft", "KeyA"], desc: "تحديد كل النص (Tout sélectionner)" },
+                        { keys: ["Ctrl", "Z"], codeKeys: ["ControlLeft", "KeyZ"], desc: "التراجع عن آخر إجراء (Annuler)" },
+                        { keys: ["Ctrl", "Y"], codeKeys: ["ControlLeft", "KeyY"], desc: "إعادة الإجراء (Rétablir)" },
+                        { keys: ["Ctrl", "F"], codeKeys: ["ControlLeft", "KeyF"], desc: "البحث عن كلمة في النص (Rechercher)" }
+                    ]
+                },
+                {
+                    category: "🔤 تشكيل الحروف العربية (Arabic Diacritics)",
+                    items: [
+                        { keys: ["Shift", "A"], codeKeys: ["ShiftLeft", "KeyA"], desc: "إدراج الفتحة (َ - Fatha)" },
+                        { keys: ["Shift", "S"], codeKeys: ["ShiftLeft", "KeyS"], desc: "إدراج الكسرة (ِ - Kasra)" },
+                        { keys: ["Shift", "W"], codeKeys: ["ShiftLeft", "KeyW"], desc: "إدراج الضمة (ُ - Damma)" },
+                        { keys: ["Shift", "Q"], codeKeys: ["ShiftLeft", "KeyQ"], desc: "إدراج التنوين بالفتح (ً - Tanwin Fath)" },
+                        { keys: ["Shift", "X"], codeKeys: ["ShiftLeft", "KeyX"], desc: "إدراج السكون (ْ - Sukun)" },
+                        { keys: ["Shift", "R"], codeKeys: ["ShiftLeft", "KeyR"], desc: "إدراج تنوين الضم (ٌ - Tanwin Damm)" },
+                        { keys: ["Shift", "T"], codeKeys: ["ShiftLeft", "KeyT"], desc: "إدراج تنوين الكسر (ٍ - Tanwin Kasr)" },
+                        { keys: ["Shift", "D"], codeKeys: ["ShiftLeft", "KeyD"], desc: "إدراج الشدة (ّ - Shaddah)" }
+                    ]
+                },
+                {
+                    category: "↔️ اتجاه الكتابة والنظام (Direction & System)",
+                    items: [
+                        { keys: ["Ctrl", "Maj (اليمين)"], codeKeys: ["ControlLeft", "ShiftRight"], desc: "تغيير اتجاه الكتابة من اليمين لليسار (RTL)" },
+                        { keys: ["Ctrl", "Maj (اليسار)"], codeKeys: ["ControlLeft", "ShiftLeft"], desc: "تغيير اتجاه الكتابة من اليسار لليمين (LTR)" },
+                        { keys: ["Shift", "Alt"], codeKeys: ["ShiftLeft", "AltLeft"], desc: "تبديل لغة لوحة المفاتيح بسرعة" },
+                        { keys: ["Alt", "Tab"], codeKeys: ["AltLeft", "Tab"], desc: "التنقل بين النوافذ المفتوحة" },
+                        { keys: ["Win", "D"], codeKeys: ["MetaLeft", "KeyD"], desc: "الذهاب إلى سطح المكتب (Desktop)" }
+                    ]
+                }
+            ]
+        };
+
+        let currentLayoutKey = 'azerty';
+        let currentExercise = "";
+        let currentIndex = 0;
+        let errorsCount = 0;
+
+        let currentShortcutTarget = null;
+        let scSuccessCount = 0;
+        let scErrorCount = 0;
+        const activeKeysPressed = new Set();
+
+        function playSound(type) {
+            const audio = document.getElementById(type === 'clic' ? 'sound-clic' : 'sound-error');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(err => {});
+            }
+        }
+
+        function switchView(viewName, btn) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`view-${viewName}`).classList.add('active-view');
+            btn.classList.add('active');
+
+            if (viewName === 'shortcuts') {
+                renderShortcuts(currentLayoutKey);
+            } else if (viewName === 'shortcut-training') {
+                loadNewShortcutExercise();
+            }
+        }
+
+        function switchLayout(layoutName, btn) {
+            currentLayoutKey = layoutName;
+            document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            renderKeyboard(layoutName);
+            loadNewExercise();
+            
+            if (document.getElementById('view-shortcuts').classList.contains('active-view')) {
+                renderShortcuts(currentLayoutKey);
+            } else if (document.getElementById('view-shortcut-training').classList.contains('active-view')) {
+                loadNewShortcutExercise();
+            }
+        }
+
+        function renderShortcuts(layoutName) {
+            const container = document.getElementById('shortcuts-content-container');
+            const titleEl = document.getElementById('shortcuts-title');
+            container.innerHTML = '';
+            
+            const titles = { azerty: "AZERTY (FR)", qwerty: "QWERTY (US)", arabic: "Arabe (Standard)" };
+            titleEl.textContent = `Bibliothèque de Raccourcis - ${titles[layoutName]}`;
+
+            const categories = shortcutsData[layoutName] || [];
+            categories.forEach(cat => {
+                const catTitle = document.createElement('div');
+                catTitle.className = 'category-title';
+                catTitle.textContent = cat.category;
+                container.appendChild(catTitle);
+
+                const grid = document.createElement('div');
+                grid.className = 'shortcuts-grid';
+
+                cat.items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'shortcut-card';
+                    
+                    const keysDiv = document.createElement('div');
+                    keysDiv.className = 'shortcut-keys';
+                    item.keys.forEach((k, idx) => {
+                        const badge = document.createElement('span');
+                        badge.className = 'shortcut-badge';
+                        badge.textContent = k;
+                        keysDiv.appendChild(badge);
+                        if (idx < item.keys.length - 1) {
+                            const plus = document.createElement('span');
+                            plus.style.color = 'var(--text-muted)';
+                            plus.style.fontSize = '0.8rem';
+                            plus.textContent = '+';
+                            keysDiv.appendChild(plus);
+                        }
+                    });
+
+                    const descDiv = document.createElement('div');
+                    descDiv.className = 'shortcut-desc';
+                    descDiv.textContent = item.desc;
+
+                    card.appendChild(keysDiv);
+                    card.appendChild(descDiv);
+                    grid.appendChild(card);
+                });
+
+                container.appendChild(grid);
+            });
+        }
+
+        function loadNewExercise() {
+            const layoutData = layouts[currentLayoutKey];
+            let availableChars = [];
+
+            layoutData.forEach(row => {
+                row.forEach(key => {
+                    if (key.char && key.char !== ' ') {
+                        availableChars.push(key.char);
+                    }
+                });
+            });
+
+            let generatedString = "";
+            const length = 8;
+            for (let i = 0; i < length; i++) {
+                const randomChar = availableChars[Math.floor(Math.random() * availableChars.length)];
+                generatedString += randomChar;
+                if (i < length - 1 && Math.random() > 0.6) {
+                    generatedString += " ";
+                }
+            }
+
+            currentExercise = generatedString;
+            currentIndex = 0;
+            errorsCount = 0;
+            updateStats();
+            renderExerciseDisplay();
+            highlightTargetKey();
+        }
+
+        function renderExerciseDisplay() {
+            const display = document.getElementById('exercise-display');
+            display.innerHTML = '';
+            
+            for (let i = 0; i < currentExercise.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'char-box';
+                if (i === currentIndex) span.classList.add('current');
+                span.textContent = currentExercise[i] === ' ' ? '␣' : currentExercise[i];
+                display.appendChild(span);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('error-count').textContent = errorsCount;
+            document.getElementById('progress-count').textContent = currentIndex;
+            document.getElementById('total-count').textContent = currentExercise.length;
+        }
+
+        function loadNewShortcutExercise() {
+            const cats = shortcutsData[currentLayoutKey] || [];
+            let allShortcuts = [];
+            cats.forEach(c => allShortcuts = allShortcuts.concat(c.items));
+
+            if (allShortcuts.length === 0) return;
+            currentShortcutTarget = allShortcuts[Math.floor(Math.random() * allShortcuts.length)];
+
+            const container = document.getElementById('target-shortcut-container');
+            container.innerHTML = '';
+            currentShortcutTarget.keys.forEach((k, idx) => {
+                const badge = document.createElement('span');
+                badge.className = 'shortcut-target-badge';
+                badge.textContent = k;
+                container.appendChild(badge);
+                if (idx < currentShortcutTarget.keys.length - 1) {
+                    const plus = document.createElement('span');
+                    plus.style.color = 'var(--text-muted)';
+                    plus.style.fontSize = '1.2rem';
+                    plus.textContent = '+';
+                    container.appendChild(plus);
+                }
+            });
+
+            document.getElementById('sc-feedback').textContent = `Action : ${currentShortcutTarget.desc}`;
+            highlightShortcutKeys(currentShortcutTarget.codeKeys);
+        }
+
+        function highlightShortcutKeys(codeKeys) {
+            document.querySelectorAll('.key').forEach(k => k.classList.remove('guide'));
+            if (codeKeys) {
+                codeKeys.forEach(code => {
+                    const el = document.querySelector(`.key[data-code="${code}"]`);
+                    if (el) el.classList.add('guide');
+                });
+            }
+        }
+
+        function highlightTargetKey() {
+            document.querySelectorAll('.key').forEach(k => k.classList.remove('guide'));
+
+            if (currentIndex < currentExercise.length) {
+                const targetChar = currentExercise[currentIndex];
+                const layout = layouts[currentLayoutKey];
+                
+                for (let row of layout) {
+                    for (let key of row) {
+                        if (key.char === targetChar || (targetChar === ' ' && key.code === 'Space')) {
+                            const keyEl = document.querySelector(`.key[data-code="${key.code}"]`);
+                            if (keyEl) keyEl.classList.add('guide');
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        function renderKeyboard(layoutName) {
+            const container = document.getElementById('keyboard-main-container');
+            container.innerHTML = '';
+            const layoutData = layouts[layoutName];
+
+            layoutData.forEach((row) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+
+                row.forEach(keyInfo => {
+                    const keyDiv = document.createElement('div');
+                    keyDiv.className = `key ${keyInfo.class || ''}`;
+                    keyDiv.setAttribute('data-code', keyInfo.code);
+
+                    if (keyInfo.sub) {
+                        const subSpan = document.createElement('span');
+                        subSpan.className = 'sub';
+                        subSpan.textContent = keyInfo.sub;
+                        keyDiv.appendChild(subSpan);
+                    }
+
+                    const mainSpan = document.createElement('span');
+                    mainSpan.className = 'main-char';
+                    mainSpan.textContent = keyInfo.label;
+                    keyDiv.appendChild(mainSpan);
+
+                    rowDiv.appendChild(keyDiv);
+                });
+
+                container.appendChild(rowDiv);
+            });
+            if (document.getElementById('view-training').classList.contains('active-view')) {
+                highlightTargetKey();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const keyElement = document.querySelector(`.key[data-code="${e.code}"]`);
+            if (keyElement) keyElement.classList.add('active');
+            activeKeysPressed.add(e.code);
+
+            if (document.getElementById('view-training').classList.contains('active-view')) {
+                if (currentIndex < currentExercise.length) {
+                    const expectedChar = currentExercise[currentIndex];
+                    let pressedChar = e.key;
+                    if (e.code === 'Space') pressedChar = ' ';
+
+                    const charBoxes = document.querySelectorAll('.char-box');
+                    
+                    if (pressedChar === expectedChar) {
+                        playSound('clic');
+                        charBoxes[currentIndex].classList.remove('current', 'incorrect');
+                        charBoxes[currentIndex].classList.add('correct');
+                        currentIndex++;
+                        updateStats();
+
+                        if (currentIndex < currentExercise.length) {
+                            charBoxes[currentIndex].classList.add('current');
+                            highlightTargetKey();
+                        } else {
+                            setTimeout(() => { loadNewExercise(); }, 350);
+                        }
+                    } else if (!['Shift', 'Control', 'Alt', 'CapsLock'].includes(e.key)) {
+                        playSound('error');
+                        errorsCount++;
+                        updateStats();
+                        if (charBoxes[currentIndex]) {
+                            charBoxes[currentIndex].classList.add('incorrect');
+                        }
+                    }
+                }
+            }
+
+            if (document.getElementById('view-shortcut-training').classList.contains('active-view') && currentShortcutTarget) {
+                const targetCodes = currentShortcutTarget.codeKeys;
+                const allPressed = targetCodes.every(code => activeKeysPressed.has(code));
+
+                if (allPressed) {
+                    playSound('clic');
+                    scSuccessCount++;
+                    document.getElementById('sc-success-count').textContent = scSuccessCount;
+                    document.getElementById('sc-feedback').style.color = '#10b981';
+                    document.getElementById('sc-feedback').textContent = "Bravo ! Raccourci réussi ✅";
+                    setTimeout(() => {
+                        loadNewShortcutExercise();
+                        document.getElementById('sc-feedback').style.color = 'var(--text-muted)';
+                    }, 600);
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const keyElement = document.querySelector(`.key[data-code="${e.code}"]`);
+            if (keyElement) keyElement.classList.remove('active');
+            activeKeysPressed.delete(e.code);
+        });
+
+        window.onload = () => {
+            renderKeyboard('azerty');
+            loadNewExercise();
+        };
+    </script>
+</body>
+</html>
